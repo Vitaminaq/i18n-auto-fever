@@ -6,14 +6,13 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "db": "ts-node src/db/index.ts",
-    "dev": "nodemon --watch -e ts --exec ts-node src/index.ts"
+    "dev": "nodemon --watch src --exec ts-node src/index.ts"
   },
   "author": "vitaminaq",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.27.2",
     "express": "^4.18.1",
-    "mongodb": "^4.6.0",
     "mongoose": "^6.3.4",
     "ts-node": "^10.7.0"
   },

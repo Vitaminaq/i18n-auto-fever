@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import testSchema from './schema/test';
+import { getI18nSchema } from './schema/i18n';
 
 const model = mongoose.model;
 
-export const TestModel = model('testModel', testSchema)
+export const I18nModel = model('i18nModel', getI18nSchema());
+
