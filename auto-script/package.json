@@ -1,0 +1,27 @@
+{
+  "name": "auto-script",
+  "version": "1.0.0",
+  "description": "",
+  "bin": {
+    "auto-script": "bin/auto-script.mjs"
+  },
+  "main": "dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "unbuild"
+  },
+  "keywords": [
+    "i18n"
+  ],
+  "author": "dafeige",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "fse": "^4.0.1",
+    "glob": "^8.0.3",
+    "jiti": "^1.15.0"
+  },
+  "devDependencies": {
+    "unbuild": "^0.8.10"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "i18n-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "auto-script upload"
+  },
+  "keywords": [
+    "i18n-demo"
+  ],
+  "author": "dafeige",
+  "license": "ISC",
+  "dependencies": {
+    "auto-script": "file:../auto-script"
+  }
+}
