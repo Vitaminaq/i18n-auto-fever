@@ -67,6 +67,7 @@ export const multipleTranslateByLanguage = (list: any[], language = 'en'): Promi
                     from: 'zh',
                     to: language
                 });
+                console.log(r, query, language);
                 Array.prototype.push.apply(res, r.data.trans_result);
                 query = getQuery();
             } catch (e) {
@@ -94,7 +95,7 @@ export const multipleTranslate = (list: any): Promise<any> => {
                     return {
                         ...i,
                         [key]: {
-                            value: map.get(i.ZH_CN),
+                            value: map.get(i.zh_CN) || '',
                             lock: true
                         }
                     };

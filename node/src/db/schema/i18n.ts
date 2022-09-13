@@ -15,26 +15,6 @@ const TranslateSchema = new Schema({
 });
 
 
-//定义UserSchema的Schema
-const I18nSchema = new Schema({
-    key: {
-        type: String,
-        index: true
-    },
-    ZH_CN: {
-        type: String,
-        index: true
-    },
-    create_time: {
-        type: Date,
-        default: Date.now
-    },
-    update_time: {
-        type: Date,
-        default: Date.now
-    }
-});
-
 export const getI18nSchema = () => {
     const obj: any = {};
 
@@ -52,7 +32,7 @@ export const getI18nSchema = () => {
             type: String,
             index: true
         },
-        ZH_CN: {
+        zh_CN: {
             type: String,
             index: true
         },
@@ -67,5 +47,3 @@ export const getI18nSchema = () => {
         }
     });
 }
-
-export default I18nSchema;
