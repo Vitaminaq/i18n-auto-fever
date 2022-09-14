@@ -43,10 +43,10 @@ const formatQuery = (list: any) => {
             }
             if (str.length > 2000) {
                 index = i;
-                str.replace('\n' + list[index].ZH_CN, '');
+                str.replace('\n' + list[index].zh_CN, '');
                 break;
             }
-            str = `${str}${str && '\n'}${list[i].ZH_CN}`;
+            str = `${str}${str && '\n'}${list[i].zh_CN}`;
         }
         return str;
     }

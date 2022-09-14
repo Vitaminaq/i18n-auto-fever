@@ -1,6 +1,6 @@
-export const translateAppid = '20220521001223936';
+export const translateAppid = '20220310001119599';
 
-export const translateKey = 'wXRf7BBMFkccZHxhzdmS';
+export const translateKey = '8JTpR8GVZNIWYh7jXsFi';
 
 interface TranslateLanguagesMap {
     en_US: 'en', // 英语

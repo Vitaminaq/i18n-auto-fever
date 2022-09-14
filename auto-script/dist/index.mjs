@@ -20,6 +20,24 @@ const flattenObject = (obj) => {
   flat(obj);
   return format;
 };
+const flattenToObject = (obj) => {
+  const format = {};
+  let current = format;
+  Object.keys(obj).forEach((k) => {
+    const keys = k.split(".");
+    const len = keys.length;
+    if (len < 2) {
+      current[k] = obj[k];
+      return;
+    }
+    let i = 0;
+    while (i < len) {
+      current = current[keys[i]] = i === len - 1 ? obj[k] : {};
+      i++;
+    }
+  });
+  return format;
+};
 
 const localAxios = axios.create({
   baseURL: "http://127.0.0.1:3002"
@@ -32,12 +50,16 @@ const uploadSource = (params) => {
 };
 
 const translateLanguages = ["en_US", "zh_TW", "zh_HK", "ja_JP"];
+const lanMap = {
+  en_US: "en-US",
+  zh_TW: "zh-TW",
+  zh_HK: "zh-HK",
+  ja_JP: "ja-JP"
+};
 const upload = () => {
   return glob(`!(node_modules)/**/zh-CN.{ts,js,json}`, {}, async (err, files) => {
     if (err)
       throw Error("glob\uFF1A\u67E5\u627E\u6587\u4EF6\u5931\u8D25");
-    if (!files.length)
-      return;
     const pathMap = /* @__PURE__ */ new Map();
     const map = /* @__PURE__ */ new Map();
     const list = [];
@@ -59,38 +81,27 @@ const upload = () => {
       }));
       pathMap.set(filePath, content);
     });
-    console.log(list, "mmmmmmmmmmmmmmmmmmmmmmm");
     const r = await uploadSource({ list, translate: true });
     if (r.code !== 0)
       return;
     const resultMap = /* @__PURE__ */ new Map();
     r.data.forEach((i) => {
-      const { key, ZH_CN } = i;
-      resultMap.set(`${key}${ZH_CN}`, i);
+      const { key, zh_CN } = i;
+      resultMap.set(`${key}${zh_CN}`, i);
     });
-    console.log(r, resultMap);
     translateLanguages.forEach((lan) => pathMap.forEach((value, key) => {
+      let obj = {};
+      Object.keys(value).forEach((i) => {
+        const mapKey = `${i}${value[i]}`;
+        obj[i] = resultMap.get(mapKey)[lan].value;
+      });
+      obj = flattenToObject(obj);
       if (key.endsWith(".json")) {
-        let obj = {};
-        Object.keys(value).forEach((i) => {
-          const mapKey = `${i}${value[i]}`;
-          obj[i] = resultMap.get(mapKey)[lan].value;
-        });
-        outputFile(path.resolve(key.replace("zh_CN", lan)), `${JSON.stringify(obj, null, 4)}
+        outputFile(path.resolve(key.replace("zh-CN", lanMap[lan])), `${JSON.stringify(obj, null, 4)}
 `);
       } else {
-        let str = "export default {\n";
-        Object.keys(value).forEach((i) => {
-          const mapKey = `${i}${value[i]}`;
-          if (resultMap.has(mapKey)) {
-            str = `${str}	${i}: "${resultMap.get(mapKey)[lan].value}",
-`;
-          } else {
-            str = `${str}	${i}: '""',
-`;
-          }
-        });
-        outputFile(path.resolve(key.replace("ZH_CN", lan)), `${str}}
+        outputFile(path.resolve(key.replace("zh-CN", lanMap[lan])), `export default 
+${JSON.stringify(obj, null, 4)}
 `);
       }
     }));

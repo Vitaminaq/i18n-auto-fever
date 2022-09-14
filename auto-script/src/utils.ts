@@ -14,3 +14,26 @@ export const flattenObject = (obj: Record<string, any>) => {
     flat(obj);
     return format;
 }
+
+export const flattenToObject = (obj: Record<string, any>) => {
+    const format = {};
+
+    let current = format;
+
+    Object.keys(obj).forEach(k => {
+        const keys = k.split('.');
+        const len = keys.length;
+        if (len < 2) {
+            current[k] = obj[k];
+            return;
+        }
+
+        let i = 0;
+        while(i < len) {
+            current = current[keys[i]] = i === len - 1 ? obj[k] : {};
+            i++;
+        }
+    });
+
+    return format;
+}
