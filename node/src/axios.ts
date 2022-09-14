@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { translateAppid, translateKey, translateLanguages, Languages, translateLanguagesMap } from './config';
+import { translateAppid, translateKey, translateLanguages, translateLanguagesMap } from './config';
 import MD5 from './md5';
 
 interface TranslateParams {
@@ -67,7 +67,6 @@ export const multipleTranslateByLanguage = (list: any[], language = 'en'): Promi
                     from: 'zh',
                     to: language
                 });
-                console.log(r, query, language);
                 Array.prototype.push.apply(res, r.data.trans_result);
                 query = getQuery();
             } catch (e) {

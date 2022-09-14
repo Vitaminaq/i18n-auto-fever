@@ -1,32 +1,65 @@
 <template>
   <div class="common-layout">
     <ElContainer>
-      <ElHeader>Header</ElHeader>
-      <el-table :data="list" style="width: 100%">
-        <el-table-column prop="key" label="key" width="180" />
-        <el-table-column prop="ZH_CN" label="中文" width="180" />
-        <el-table-column prop="EN_US.value" label="英语" width="180" />
-        <el-table-column prop="ZH_TW.value" label="中国台湾" width="180" />
-        <el-table-column prop="ZH_HK.value" label="中国香港" width="180" />
-        <el-table-column prop="JA_JP.value" label="日语" width="180" />
+      <ElHeader>欢迎来到翻译云系统，这是一个美妙的世界</ElHeader>
+      <el-table :data="list">
+        <el-table-column prop="key" label="key" width="180">
+          <template #default="scope">
+            <el-popover effect="light" trigger="hover" placement="top" width="auto">
+              <template #default>
+                <div>{{ scope.row.key }}</div>
+              </template>
+              <template #reference>
+                {{ scope.row.key }}
+              </template>
+            </el-popover>
+          </template>
+        </el-table-column>
+        <el-table-column prop="zh_CN" label="中文" width="180" />
+        <el-table-column prop="en_US.value" label="英语" width="180" />
+        <el-table-column prop="zh_TW.value" label="中国台湾" width="180" />
+        <el-table-column prop="zh_HK.value" label="中国香港" width="180" />
+        <el-table-column prop="ja_JP.value" label="日语" width="180" />
+        <el-table-column fixed="right" label="操作">
+          <template #default="scope">
+            <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
+              >编辑</el-button
+            >
+          </template>
+        </el-table-column>
       </el-table>
       <ElMain>Main</ElMain>
     </ElContainer>
+    <Detail v-model="visible" />
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { ElContainer, ElHeader, ElMain, ElTable, ElTableColumn } from 'element-plus';
-import { api } from '@/api';
+import { onMounted, ref } from "vue";
+import {
+  ElContainer,
+  ElHeader,
+  ElMain,
+  ElTable,
+  ElTableColumn,
+  ElPopover,
+  ElButton
+} from "element-plus";
+import Detail from '@/components/detail.vue';
+import { api } from "@/api";
 
 const list = ref([]);
+const visible = ref(false);
 
 onMounted(async () => {
   const r = await api.getList();
 
   list.value = r.data;
-  console.log(r, 'yyyyyyyyyyyyyyyyyyyyyyyy')
-})
+});
+
+const handleEdit = (index: number, row: any) => {
+  console.log(index, row);
+  visible.value = true;
+};
 </script>
 <style lang="less" scoped>
 .common-layout {
