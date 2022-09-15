@@ -1,3 +1,5 @@
+import prettier from 'prettier';
+
 export const flattenObject = (obj: Record<string, any>) => {
     const format = {};
     const flat = (target, key = '') => {
@@ -36,4 +38,8 @@ export const flattenToObject = (obj: Record<string, any>) => {
     });
 
     return format;
+}
+
+export const formatCode = (code: string, parser: 'json' | 'typescript' = 'typescript') => {
+    return prettier.format(code, { semi: true, tabWidth: 4, parser });
 }

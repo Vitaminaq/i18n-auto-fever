@@ -30,7 +30,7 @@
       </el-table>
       <ElMain>Main</ElMain>
     </ElContainer>
-    <Detail v-model="visible" />
+    <Detail v-model="visible" :item="current" />
   </div>
 </template>
 <script setup lang="ts">
@@ -49,6 +49,7 @@ import { api } from "@/api";
 
 const list = ref([]);
 const visible = ref(false);
+const current = ref<any>(null);
 
 onMounted(async () => {
   const r = await api.getList();
@@ -59,6 +60,7 @@ onMounted(async () => {
 const handleEdit = (index: number, row: any) => {
   console.log(index, row);
   visible.value = true;
+  current.value = row;
 };
 </script>
 <style lang="less" scoped>
