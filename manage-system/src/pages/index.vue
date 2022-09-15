@@ -28,7 +28,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <ElMain>Main</ElMain>
     </ElContainer>
     <Detail v-model="visible" :item="current" />
   </div>
@@ -38,7 +37,6 @@ import { onMounted, ref } from "vue";
 import {
   ElContainer,
   ElHeader,
-  ElMain,
   ElTable,
   ElTableColumn,
   ElPopover,
