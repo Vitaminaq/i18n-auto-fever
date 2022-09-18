@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { translateAppid, translateKey, translateLanguages, Languages, translateLanguagesMap } from './config';
+import { translateAppid, translateKey, translateLanguages, translateLanguagesMap } from './config';
 import MD5 from './md5';
 
 interface TranslateParams {
@@ -43,10 +43,10 @@ const formatQuery = (list: any) => {
             }
             if (str.length > 2000) {
                 index = i;
-                str.replace('\n' + list[index].ZH_CN, '');
+                str.replace('\n' + list[index].zh_CN, '');
                 break;
             }
-            str = `${str}${str && '\n'}${list[i].ZH_CN}`;
+            str = `${str}${str && '\n'}${list[i].zh_CN}`;
         }
         return str;
     }
@@ -94,7 +94,7 @@ export const multipleTranslate = (list: any): Promise<any> => {
                     return {
                         ...i,
                         [key]: {
-                            value: map.get(i.ZH_CN),
+                            value: map.get(i.zh_CN) || '',
                             lock: true
                         }
                     };

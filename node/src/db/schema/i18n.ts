@@ -64,7 +64,7 @@ export const getI18nSchema = () => {
             type: String,
             index: true
         },
-        ZH_CN: {
+        zh_CN: {
             type: String,
             index: true
         },
@@ -79,5 +79,3 @@ export const getI18nSchema = () => {
         }
     });
 }
-
-export default I18nSchema;
