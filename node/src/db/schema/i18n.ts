@@ -9,17 +9,29 @@ const TranslateSchema = new Schema({
         default: ''
     },
     lock: {
-        type: String,
+        type: Boolean,
         default: false
-    }
+    },
+    translator: {
+        type: String
+    },
+    translator_id: Number
 });
 
 
-//定义UserSchema的Schema
+//定义I18nSchema的Schema
 const I18nSchema = new Schema({
+    id: {
+        type: Number,
+        index: true
+    },
     key: {
         type: String,
         index: true
+    },
+    relation: {
+        type: Array,
+        default: []
     },
     ZH_CN: {
         type: String,
