@@ -13,7 +13,7 @@ const TranslateSchema = new Schema({
         default: false
     },
     translator: {
-        type: String
+        type: String // 翻译平台
     },
     translator_id: Number
 });

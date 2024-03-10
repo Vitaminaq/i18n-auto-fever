@@ -23,6 +23,7 @@
     "prettier": "^2.7.1"
   },
   "devDependencies": {
-    "unbuild": "^0.8.10"
+    "@types/node": "^20.11.25",
+    "unbuild": "^2.0.0"
   }
 }

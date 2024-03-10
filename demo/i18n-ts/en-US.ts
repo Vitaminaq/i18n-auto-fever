@@ -1,6 +1,6 @@
 export default {
-    step: "step",
+    step: "",
     page: {
-        meta: "key word",
+        meta: "",
     },
 };
