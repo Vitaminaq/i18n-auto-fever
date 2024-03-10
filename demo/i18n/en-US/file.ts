@@ -1,4 +1,4 @@
 export default {
-    file: "",
-    process: "",
+    file: "file",
+    process: "Progress bar",
 };

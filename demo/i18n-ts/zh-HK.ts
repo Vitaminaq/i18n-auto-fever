@@ -1,6 +1,6 @@
 export default {
-    step: "",
+    step: "步驟",
     page: {
-        meta: "",
+        meta: "關鍵字",
     },
 };

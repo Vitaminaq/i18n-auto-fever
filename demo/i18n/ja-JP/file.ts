@@ -1,4 +1,4 @@
 export default {
-    file: "",
-    process: "",
+    file: "ファイル",
+    process: "プログレスバー",
 };
