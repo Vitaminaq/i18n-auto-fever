@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "auto-script upload"
+    "start": "auto-script upload",
+    "init": "auto-script init"
   },
   "keywords": [
     "i18n-demo"

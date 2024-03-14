@@ -1,85 +1,74 @@
-import glob from "glob";
-import jiti from "jiti";
 import path from "node:path";
-import { flattenObject, flattenToObject, formatCode } from "./utils";
+import {
+  projectInfo,
+  config,
+  unflattenObject,
+  formatCode,
+  findTargetFile,
+  readFileByPath,
+} from "./utils";
 import { uploadSource } from "./axios";
 import { outputFile } from "fs-extra";
 
-const translateLanguages = ["en_US", "zh_TW", "zh_HK", "ja_JP"];
-
-const lanMap = {
-  en_US: "en-US",
-  zh_TW: "zh-TW",
-  zh_HK: "zh-HK",
-  ja_JP: "ja-JP",
-};
-
 export const upload = () => {
-  return glob(
-    "{!(node_modules),**}/zh-CN{/**.,.}@(ts|js|json)",
-    {},
-    async (err, files) => {
-      if (err) throw Error("glob：查找文件失败");
+  const { reference, langMap } = config;
 
-      console.log(files, "ppppp");
+  return findTargetFile().then(async (files) => {
+    const { name } = projectInfo;
 
-      const pathMap = new Map();
-      const map = new Map();
+    console.log("当前项目", name);
+    console.log(files);
 
-      const list = [];
+    const pathMap = new Map();
 
-      files.forEach(async (filePath: string) => {
-        const fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
-        let content = jiti(path.resolve(filePath.replace(fileName, "")))(
-          `./${fileName}`
-        );
-        if (!content) return;
-        content = content.default || content;
-        content = flattenObject(content);
+    const list = [];
 
-        list.push(
-          ...Object.keys(content)
-            .filter((k) => !map.has(content[k]) || map.get(content[k]) !== k)
-            .map((key) => {
-              map.set(content[key], key);
-              return {
-                key,
-                zh_CN: content[key],
-              };
-            })
-        );
-        pathMap.set(filePath, content);
-      });
+    files.forEach(async (filePath: string) => {
+      const content = readFileByPath(filePath);
+    
+      if (!content) return;
 
-      const r = await uploadSource({ list, translate: true });
-      if (r.code !== 0) return;
-      const resultMap = new Map();
-      r.data.forEach((i) => {
-        const { key, zh_CN } = i;
-        resultMap.set(`${key}${zh_CN}`, i);
-      });
-
-      translateLanguages.forEach((lan) =>
-        pathMap.forEach((value, key) => {
-          let obj = {};
-          Object.keys(value).forEach((i) => {
-            const mapKey = `${i}${value[i]}`;
-            obj[i] = resultMap.get(mapKey)[lan].value;
-          });
-          obj = flattenToObject(obj);
-          if (key.endsWith(".json")) {
-            outputFile(
-              path.resolve(key.replace("zh-CN", lanMap[lan])),
-              formatCode(`${JSON.stringify(obj, null, 4)}\n`, 'json')
-            );
-          } else {
-            outputFile(
-              path.resolve(key.replace("zh-CN", lanMap[lan])),
-              formatCode(`export default \n${JSON.stringify(obj, null, 4)}\n`)
-            );
-          }
+      list.push(
+        ...Object.keys(content).map((key) => {
+          return {
+            key,
+            zh_CN: content[key],
+            path: filePath,
+          };
         })
       );
-    }
-  );
+      pathMap.set(filePath, content);
+    });
+
+    const r = await uploadSource({ list, project: name });
+    if (r.code !== 0) return;
+    const resultMap = new Map();
+    r.data.forEach((i) => {
+      const { key, project, path } = i;
+      resultMap.set(`${project}.${path}.${key}`, i);
+    });
+
+    Object.keys(langMap).forEach((lan) => {
+      pathMap.forEach((value, key) => {
+        let obj = {};
+        Object.keys(value).forEach((i) => {
+          const mapKey = `${name}.${key}.${i}`;
+          obj[i] = resultMap.get(mapKey)[lan];
+        });
+        obj = unflattenObject(obj);
+
+        if (key.endsWith(".json")) {
+          outputFile(
+            path.resolve(key.replace(reference, langMap[lan])),
+            formatCode(`${JSON.stringify(obj, null, 4)}\n`, "json")
+          );
+        } else {
+          outputFile(
+            path.resolve(key.replace(reference, langMap[lan])),
+            formatCode(`export default \n${JSON.stringify(obj, null, 4)}\n`)
+          );
+        }
+      });
+    });
+  });
 };

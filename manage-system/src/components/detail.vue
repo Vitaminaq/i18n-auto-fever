@@ -1,140 +1,159 @@
 <template>
   <el-dialog
-    :model-value="props.value"
+    :v-model="value"
     title="编辑"
-    width="80%"
+    width="60%"
     :close-on-click-modal="false"
+    destroy-on-close
     @close="onClose"
   >
-    <el-form
-      ref="ruleFormRef"
-      :model="ruleForm"
-      status-icon
-      :rules="rules"
-      label-width="120px"
-      class="demo-ruleForm"
-    >
-      <el-form-item v-for="item in list" :key="item._id" :label="item.label" prop="pass">
-        <el-input v-model="ruleForm.pass" type="text" autocomplete="off" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="onClose">取消</el-button>
-        <el-button type="primary" @click="submitForm(ruleFormRef)"
-          >保存</el-button
+    <div class="i18n-detail-content">
+      <div class="i18n-info-item">
+        <span>项目：</span>
+        <div>{{ localItem.project }}</div>
+      </div>
+      <div class="i18n-info-item">
+        <span>路径：</span>
+        <div>{{ localItem.path }}</div>
+      </div>
+      <div class="i18n-info-item">
+        <span>字段：</span>
+        <div>{{ localItem.key }}</div>
+      </div>
+      <div class="i18n-form">
+        <FormItem
+          v-for="langItem in list"
+          :key="langItem.lang"
+          :item="langItem"
+          :reference="localItem.zh_CN"
+          :id="localItem._id"
+          @change="onChange"
+        />
+      </div>
+      <div class="i18n-info-item">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="查看关键词其他翻译，避免一词多译"
+          placement="top"
         >
-      </span>
-    </template>
+          <el-icon class="keyword-tip"><Warning /></el-icon>
+        </el-tooltip>
+        关键词推荐：
+        <el-button v-for="kItem in keywords" :key="kItem.keyword" @click="toCheck(kItem.keyword)">{{
+          kItem.keyword
+        }}</el-button>
+      </div>
+    </div>
   </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from "vue";
-import { ElDialog, ElButton, ElForm, ElFormItem, ElInput } from "element-plus";
-import type { FormInstance } from "element-plus";
-import { langTextMap } from '@/utils/publics';
+import { ref, computed, watch, PropType } from "vue";
+import { ElDialog, ElButton, ElIcon, ElTooltip } from "element-plus";
+import { Warning } from "@element-plus/icons-vue";
+import FormItem from "./FormItem.vue";
+import { langTextMap } from "@/utils/publics";
+import { cloneDeep } from "lodash-es";
+import { api } from "@/api";
 
 const props = defineProps({
   value: {
     type: Boolean,
     default: false,
   },
+  status: {
+    type: Boolean,
+    default: false,
+  },
   item: {
-    type: Object,
+    type: Object as PropType<API.I18n.List.DataItem>,
     default: () => {},
   },
 });
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "keywordCheck"]);
 
-const ruleFormRef = ref<FormInstance>();
-
-const checkAge = (rule: any, value: any, callback: any) => {
-  if (!value) {
-    return callback(new Error("Please input the age"));
-  }
-  setTimeout(() => {
-    if (!Number.isInteger(value)) {
-      callback(new Error("Please input digits"));
-    } else {
-      if (value < 18) {
-        callback(new Error("Age must be greater than 18"));
-      } else {
-        callback();
-      }
-    }
-  }, 1000);
-};
-
-const validatePass = (rule: any, value: any, callback: any) => {
-  if (value === "") {
-    callback(new Error("Please input the password"));
-  } else {
-    if (ruleForm.checkPass !== "") {
-      if (!ruleFormRef.value) return;
-      ruleFormRef.value.validateField("checkPass", () => null);
-    }
-    callback();
-  }
-};
-const validatePass2 = (rule: any, value: any, callback: any) => {
-  if (value === "") {
-    callback(new Error("Please input the password again"));
-  } else if (value !== ruleForm.pass) {
-    callback(new Error("Two inputs don't match!"));
-  } else {
-    callback();
-  }
-};
-
-const ruleForm = reactive({
-  pass: "",
-  checkPass: "",
-  age: "",
-});
-
-const rules = reactive({
-  pass: [{ validator: validatePass, trigger: "blur" }],
-  checkPass: [{ validator: validatePass2, trigger: "blur" }],
-  age: [{ validator: checkAge, trigger: "blur" }],
-});
+const localItem = ref<Record<string, any>>({});
+const keywords = ref<API.I18n.Analysis.Participle.DataItem[]>([]);
 
 const list = computed(() => {
-  const { item } = props;
-  return Object.keys(item)
-    .filter((k) => ["zh_CN", "en_US", "ja_JP", "zh_HK", "zh_TW"].includes(k))
+  return Object.keys(localItem.value)
+    .filter((k) => ["zh_CN", "en", "jp", "kr", "ru"].includes(k))
     .map((i) => {
-      return typeof item[i] === "string"
-        ? {
-            lock: "true",
-            label: langTextMap[i],
-            value: item[i],
-            _id: 1,
-          }
-        : {
-            ...item[i],
-            label: langTextMap[i],
-        };
+      return {
+        label: langTextMap[i],
+        lang: i,
+        value: localItem.value[i],
+      };
     });
 });
 
-const onClose = () => emit("update:modelValue", false);
+watch(
+  () => props.item,
+  (val) => {
+    localItem.value = cloneDeep(val);
+  },
+  {
+    immediate: true,
+    deep: true,
+  }
+);
 
-const submitForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  formEl.validate((valid) => {
-    if (valid) {
-      console.log("submit!");
-      onClose();
-    } else {
-      console.log("error submit!");
-      return false;
-    }
-  });
+watch(
+  () => props.status,
+  (val) => {
+    if (!val) return;
+    api
+      .analysisParticiple({
+        text: props.item.zh_CN,
+        num: 10,
+      })
+      .then((res) => {
+        if (res.code !== 0) return;
+        keywords.value = res.data;
+      });
+  }
+);
+
+const onChange = (lang: string, value: string) => {
+  localItem.value[lang] = value;
 };
+
+const onClose = () => {
+  emit("update:modelValue", false);
+  localItem.value = cloneDeep(props.item);
+};
+
+const toCheck = (val: string) => {
+  emit("keywordCheck", val);
+  onClose();
+}
 </script>
 <style scoped>
+.i18n-form {
+  padding: 0 32px;
+}
+
+.i18n-detail-content {
+  max-height: 65vh;
+  overflow: auto;
+}
+
 .dialog-footer button:first-child {
   margin-right: 10px;
+}
+
+.i18n-info-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 32px;
+}
+
+.i18n-info-item > div {
+  color: #333;
+}
+
+.keyword-tip {
+  margin-right: 4px;
 }
 </style>

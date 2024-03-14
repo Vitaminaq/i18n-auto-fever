@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { translateAppid, translateKey, translateLanguages, translateLanguagesMap } from './config';
 import MD5 from './md5';
+import { TaskQueueSync } from "./utils";
 
 interface TranslateParams {
     q: string;
@@ -8,27 +9,33 @@ interface TranslateParams {
     to: string;
 }
 
+const taskQueue = new TaskQueueSync();
+
 export const getTranslateResult = ({ q, from, to }: TranslateParams) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const salt = Date.now();
-            const r = await axios.get('https://fanyi-api.baidu.com/api/trans/vip/translate', {
-                params: {
-                    q,
-                    from,
-                    to,
-                    appid: translateAppid,
-                    salt,
-                    sign: MD5(`${translateAppid}${q}${salt}${translateKey}`)
-                }
-            });
-            // 1s cd
-            setTimeout(() => {
-                resolve(r);
-            }, 1000);
-        } catch (e) {
-            reject(e);
-        }
+    return new Promise((resolve, reject) => {
+        return taskQueue.enqueue(async () => {
+            try {
+                const salt = Date.now();
+                const r = await axios.get('https://fanyi-api.baidu.com/api/trans/vip/translate', {
+                    params: {
+                        q,
+                        from,
+                        to,
+                        appid: translateAppid,
+                        salt,
+                        sign: MD5(`${translateAppid}${q}${salt}${translateKey}`)
+                    }
+                });
+                if (r.data.error_code)
+                    return reject(r.data);
+                // 1s cd
+                setTimeout(() => {
+                    resolve(r);
+                }, 1000);
+            } catch (e) {
+                reject(e);
+            }
+        });
     });
 };
 
@@ -93,10 +100,7 @@ export const multipleTranslate = (list: any): Promise<any> => {
                 list = list.map((i: any) => {
                     return {
                         ...i,
-                        [key]: {
-                            value: map.get(i.zh_CN) || '',
-                            lock: true
-                        }
+                        [key]: map.get(i.zh_CN)
                     };
                 });
                 index++;

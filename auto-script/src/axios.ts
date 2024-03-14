@@ -13,9 +13,13 @@ interface BaseResponse {
     data: any;
 }
 
+export const initAndSync = (data: UploadParams): Promise<BaseResponse> => {
+    return localAxios.post('/api/i18n/init-sync', data);
+}
+
 interface UploadParams {
     list: any[];
-    translate?: boolean;
+    project: string;
 }
 
 export const uploadSource = (params: UploadParams): Promise<BaseResponse> => {

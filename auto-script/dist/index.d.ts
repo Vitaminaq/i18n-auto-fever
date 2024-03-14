@@ -1,5 +1,12 @@
-declare const upload: () => any;
+declare const upload: () => Promise<void>;
+
+interface Config {
+    reference: string;
+    langMap: Record<string, string>;
+}
+type UserConfig = Partial<Config>;
+declare const defineConfig: (config: UserConfig) => Partial<Config>;
 
 declare const run: () => Promise<void>;
 
-export { run, upload };
+export { type UserConfig, defineConfig, run, upload };

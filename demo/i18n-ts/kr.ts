@@ -1,9 +1,9 @@
 export default {
-    step: "step",
+    step: "",
     page: {
         meta: "",
     },
     footer: {
-        text: "footer",
+        text: "바닥글",
     },
 };
