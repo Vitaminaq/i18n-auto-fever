@@ -1,0 +1,9 @@
+# 使用官方的 MongoDB 镜像
+FROM mongo
+
+# 复制自定义的 MongoDB 配置文件到容器中
+COPY docker/config/mongod.conf /etc/mongod.conf
+
+EXPOSE 27017
+
+CMD ["mongod", "--config", "/etc/mongod.conf"]

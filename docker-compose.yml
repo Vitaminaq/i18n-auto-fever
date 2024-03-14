@@ -1,0 +1,29 @@
+version: '3'
+services:
+  web:
+    image: i18-web
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.web
+    ports:
+      - "5234:5234"
+    depends_on:
+      - db
+  node:
+    image: i18-node
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.node
+    ports:
+      - "5235:5235"
+    depends_on:
+      - db
+  db:
+    image: i18-db
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.db
+    volumes:
+      - D:\data\mongodb:/data/db
+    ports:
+      - 27017:27017

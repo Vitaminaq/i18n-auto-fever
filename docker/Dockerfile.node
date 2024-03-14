@@ -1,0 +1,16 @@
+FROM node:16.18.1 as builder
+
+WORKDIR /node
+
+COPY ./node .
+
+RUN npm config set registry http://10.10.17.39:4873/
+RUN npm install
+RUN npm run build
+
+RUN rm -rf node_modules
+RUN npm install --product
+
+EXPOSE 5235
+
+CMD [ "npm", "start" ]
